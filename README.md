@@ -11,12 +11,12 @@
 
 Tell your AI agent:
 
-> Install the dazi skill from https://raw.githubusercontent.com/decortex-ai/dazi-skill/main/SKILL.md
+> Install the dazi skill from https://raw.githubusercontent.com/wfnuser/dazi-skill/main/SKILL.md
 
 Or for Claude Code:
 
 ```bash
-claude install-skill https://raw.githubusercontent.com/decortex-ai/dazi-skill/main/SKILL.md
+claude install-skill https://raw.githubusercontent.com/wfnuser/dazi-skill/main/SKILL.md
 ```
 
 ## Commands
