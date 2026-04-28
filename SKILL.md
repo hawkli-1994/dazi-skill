@@ -30,6 +30,14 @@ Auto-detect the user's language from their first message. Respond in the same la
 | `/dazi-update` | Update your profile |
 | `/dazi-inbox` | Check who wants to meet you + confirmed matches |
 
+### First-Time Behavior (CRITICAL)
+
+**On ANY command or dazi-related trigger**, you MUST first:
+1. Silently set up identity (generate keypair if needed)
+2. Call `GET /connections` with signed headers to check if profile exists on server
+3. If 404 → **immediately start Registration flow** (ask nickname, basic info, tags, contact). Do NOT show a command menu. Do NOT ask "what do you want to do".
+4. Only after registration is complete (or if profile already exists) → proceed with the requested command.
+
 ### Natural Language Routing
 
 Route these intents to the matching command:
@@ -201,9 +209,16 @@ curl -s -X POST "${DAZI_API_URL}/endpoint" \
 
 ## Flow: /dazi-match
 
-### Step 1: Check registration
+**IMPORTANT: You MUST check server-side profile before showing any menu or accepting search intent.**
 
-Call `GET /connections` (or any authenticated endpoint) to see if profile exists. If 404, trigger Registration flow first.
+### Step 1: Check registration (MANDATORY — do not skip)
+
+Having a local `~/.dazi/private-key.jwk` only means you have a keypair. It does NOT mean you have a profile on the server. You MUST call the API to check.
+
+1. Ensure identity exists (run identity script if needed — silent, no user interaction)
+2. Sign an empty body and call `GET /connections` with auth headers
+3. If response is **404** → the user has NO profile. **You MUST run the Registration flow below BEFORE anything else.** Do not show a command menu. Do not ask what they want to do. Go directly to "Flow: Registration".
+4. If response is **200** → profile exists, proceed to Step 2.
 
 ### Step 2: Collect search intent
 
