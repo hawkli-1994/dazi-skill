@@ -307,9 +307,14 @@ From the 30 candidates, YOU (the local LLM) do:
 
 ### Step 5: Express interest
 
-Ask user who they want to connect with. Call `POST /interest`:
+Ask user who they want to connect with. Before sending, generate a short message (1-2 sentences) explaining why the user wants to connect — based on the recommendation reason you generated. This message will be visible to the other person.
+
+Call `POST /interest`:
 ```json
-{ "target_nickname": "<selected nickname>" }
+{
+  "target_nickname": "<selected nickname>",
+  "message": "<1-2 sentence reason, e.g. '都是独立开发者，都爱精酿，想聊聊'>"
+}
 ```
 
 If response is `"status": "matched"` — contact info is revealed! Show it to the user.
@@ -371,21 +376,33 @@ Show the complete profile for confirmation. On confirm, call `POST /profile`:
 Show four sections:
 
 **有人想认识你 (Incoming)**
-For each: show nickname + tags. Ask user to accept or decline.
+For each: show nickname + tags + message (the reason they want to meet you). Then YOU (the local LLM) should read the incoming person's tags + message, compare with the user's own tags, and generate a brief compatibility analysis to help the user decide. Ask user to accept or decline.
+
+Display format:
+```
+[nickname] 想认识你
+  - "[tag 1]"
+  - "[tag 2]"
+  - "[tag 3]"
+  对方说："[message]"
+  AI 分析：[1-2 sentences about compatibility based on both profiles]
+  → 接受 / 拒绝？
+```
 
 **等待回复 (Outgoing)**
-For each: show nickname + tags + "waiting for response"
+For each: show nickname + tags + your message + "waiting for response". Offer to withdraw.
 
 **被拒绝 (Declined)**
-For each: show nickname + tags. These are your outgoing interests that were declined by the other person.
+For each: show nickname + tags. These are your outgoing interests that were declined.
 
 **已匹配 (Matched)**
 For each: show nickname + tags + contact info + match time.
 
-### Step 3: Handle accept/decline
+### Step 3: Handle accept/decline/withdraw
 
 - **Accept**: call `POST /interest` with `{"target_nickname": "...", "action": "accept"}`. If mutual, contact is revealed.
-- **Decline**: call `POST /interest` with `{"target_nickname": "...", "action": "decline"}`. The other person will see the decline in their connections.
+- **Decline**: call `POST /interest` with `{"target_nickname": "...", "action": "decline"}`. The other person will see the decline.
+- **Withdraw**: call `POST /interest` with `{"target_nickname": "...", "action": "withdraw"}`. Removes your outgoing interest.
 
 ---
 
