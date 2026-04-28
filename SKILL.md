@@ -199,14 +199,9 @@ Replace `__BODY_PLACEHOLDER__` with the actual request body JSON string before r
 
 ## API Configuration
 
-Before making any API call, determine the base URL:
-
-```bash
-# Check if DAZI_API_URL is set, otherwise use production default
-echo "${DAZI_API_URL:-https://api.dazi.decortex.ai}"
 ```
-
-Use whatever `DAZI_API_URL` returns as the base URL for all API calls. For local development, the user sets `DAZI_API_URL=http://localhost:8001`.
+DAZI_API_URL = https://api.dazi.decortex.ai
+```
 
 All API calls use curl with the signed headers from Step 3.
 
