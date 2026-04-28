@@ -225,16 +225,18 @@ curl -s -X POST "${DAZI_API_URL}/endpoint" \
 
 ## Flow: /dazi-match
 
-**IMPORTANT: You MUST check server-side profile before showing any menu or accepting search intent.**
+**BLOCKER: If the user has not registered (no profile on server), you CANNOT search. You MUST register first.**
 
-### Step 1: Check registration (MANDATORY — do not skip)
+### Step 1: Verify registration (MANDATORY — never skip, never assume)
 
-Having a local `~/.dazi/private-key.jwk` only means you have a keypair. It does NOT mean you have a profile on the server. You MUST call the API to check.
+If you have NOT already verified profile existence in this session via a successful API call, you MUST do it now:
 
-1. Ensure identity exists (run identity script if needed — silent, no user interaction)
-2. Sign an empty body and call `GET /connections` with auth headers
-3. If response is **404** → the user has NO profile. **You MUST run the Registration flow below BEFORE anything else.** Do not show a command menu. Do not ask what they want to do. Go directly to "Flow: Registration".
-4. If response is **200** → profile exists, proceed to Step 2.
+1. Ensure identity exists (run identity script if needed — silent)
+2. Sign an empty body and call `GET ${DAZI_API_URL}/connections` with auth headers
+3. Check response:
+   - **404** → **STOP. Do not proceed to search.** Run "Flow: Registration" first. After registration completes, come back here and continue to Step 2.
+   - **200** → Profile confirmed. Continue to Step 2.
+   - **Network error** → Tell user and stop.
 
 ### Step 2: Collect search intent
 
