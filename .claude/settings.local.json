@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/huangqinghao/.claude/**)",
+      "Bash(find ~/.claude -name *.md -path */skills/*)",
+      "Bash(mkdir -p ~/.agents/skills/dazi)",
+      "Bash(cp /Users/huangqinghao/Workspace/ClaudeSpace/Workspace/decortex.ai/projects/dazi-skill/SKILL.md ~/.agents/skills/dazi/SKILL.md)",
+      "Bash(ln -s ../../.agents/skills/dazi ~/.claude/skills/dazi)"
+    ]
+  }
+}
