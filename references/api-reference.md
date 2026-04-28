@@ -22,7 +22,7 @@ Create or update user profile. Server generates ai_extracted + embeddings from t
 ```json
 {
   "nickname": "微扰",
-  "basic": { "age": 31, "gender": "M", "city": "北京" },
+  "basic": { "birth_year": 1995, "gender": "M", "city": "北京" },
   "tags": [
     "前大厂逃兵，现在全职独立开发",
     "INTP 社恐但话多，想多做少",
@@ -34,7 +34,7 @@ Create or update user profile. Server generates ai_extracted + embeddings from t
 
 **Validation:**
 - `nickname`: 1-20 chars
-- `basic.age`: integer 18-99
+- `basic.birth_year`: integer 1920-2010
 - `basic.gender`: "M" | "F" | "O"
 - `basic.city`: 1-50 chars
 - `tags`: exactly 3 strings, each 1-200 chars

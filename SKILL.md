@@ -200,7 +200,7 @@ Replace `__BODY_PLACEHOLDER__` with the actual request body JSON string before r
 ## API Configuration
 
 ```
-DAZI_API_URL = https://api.dazi.decortex.ai
+DAZI_API_URL = http://localhost:8001
 ```
 
 All API calls use curl with the signed headers from Step 3.
@@ -289,8 +289,8 @@ Triggered when /dazi-match detects no profile.
 Ask: "Pick a nickname? (this is what others will see)"
 
 ### Step 2: Basic info
-Ask for age, gender (M/F/O), and city. Can be collected in one message:
-"Age, gender (M/F/O), and city?"
+Ask for birth year, gender (M/F/O), and city. Can be collected in one message:
+"出生年份、性别（M/F/O）、城市？"
 
 ### Step 3: Contact method
 Ask: "Leave a contact method (only revealed after mutual match):"
@@ -309,7 +309,7 @@ Show the complete profile for confirmation. On confirm, call `POST /profile`:
 ```json
 {
   "nickname": "...",
-  "basic": { "age": N, "gender": "M/F/O", "city": "..." },
+  "basic": { "birth_year": N, "gender": "M/F/O", "city": "..." },
   "tags": ["...", "...", "..."],
   "contact": { "type": "wechat", "value": "..." }
 }
@@ -317,7 +317,7 @@ Show the complete profile for confirmation. On confirm, call `POST /profile`:
 
 ### Validation (check before calling API)
 - nickname: 1-20 chars
-- age: 18-99
+- birth_year: 1920-2010
 - gender: M, F, or O
 - city: 1-50 chars
 - tags: exactly 3 strings, each 1-200 chars
