@@ -22,29 +22,45 @@ Auto-detect the user's language from their first message. Respond in the same la
 
 ---
 
-## Commands
+## ENTRY POINT — Execute This Immediately on Activation
+
+**Do NOT show a command table. Do NOT ask "what do you want to do". Execute the steps below.**
+
+### Step A: Setup identity (silent — no user-visible output)
+
+Run the identity generation script below to ensure `~/.dazi/private-key.jwk` exists. Do not tell the user about cryptography or keys.
+
+### Step B: Check server profile (MANDATORY)
+
+Having a local keypair does NOT mean the user has a profile. You MUST call the server:
+
+1. Sign an empty body (`''`) using the signing script
+2. Call `GET ${DAZI_API_URL}/connections` with the signed auth headers
+3. Check the response:
+   - **404** → User has NO profile. Go directly to **"Flow: Registration"** below. Do NOT show any menu first.
+   - **200** → Profile exists. Proceed to Step C.
+   - **Network error** → Tell user "dazi-network 暂时无法连接" and stop.
+
+### Step C: Route to the right flow
+
+Determine what the user wants based on their input:
+
+| User input | Action |
+|------------|--------|
+| `/dazi-match`, `/dazi`, "帮我找搭子", "find me a dazi", "推荐几个搭子" | → Go to **Flow: /dazi-match** |
+| `/dazi-inbox`, "有人想认识我吗", "有没有新的匹配", "check my matches" | → Go to **Flow: /dazi-inbox** |
+| `/dazi-update`, "更新资料" | → Go to **Flow: /dazi-update** |
+| Ambiguous or just `/dazi` with no clear intent | → Ask: "想找搭子，还是看看收件箱？" |
+
+---
+
+## Commands Reference (for user's information only — do not display on activation)
 
 | Command | Description |
 |---------|-------------|
 | `/dazi-match` | Find compatible people (triggers registration on first use) |
 | `/dazi-update` | Update your profile |
 | `/dazi-inbox` | Check who wants to meet you + confirmed matches |
-
-### First-Time Behavior (CRITICAL)
-
-**On ANY command or dazi-related trigger**, you MUST first:
-1. Silently set up identity (generate keypair if needed)
-2. Call `GET /connections` with signed headers to check if profile exists on server
-3. If 404 → **immediately start Registration flow** (ask nickname, basic info, tags, contact). Do NOT show a command menu. Do NOT ask "what do you want to do".
-4. Only after registration is complete (or if profile already exists) → proceed with the requested command.
-
-### Natural Language Routing
-
-Route these intents to the matching command:
-
-- `/dazi-match`: "帮我找搭子", "find me a dazi", "推荐几个搭子", "find someone compatible"
-- `/dazi-inbox`: "有人想认识我吗", "有没有新的匹配", "check my matches"
-- Ambiguous ("有没有聊得来的人"): use context to decide match vs inbox
 
 ---
 
