@@ -91,12 +91,20 @@ Search for matching candidates. Server parses intent, applies filters, runs embe
 
 ## POST /interest
 
-Express interest in meeting someone. Requires mutual match to reveal contact.
+Express interest or decline. Default action is "accept".
 
-**Request:**
+**Request (accept — default):**
 ```json
 {
   "target_nickname": "赛博游民"
+}
+```
+
+**Request (decline):**
+```json
+{
+  "target_nickname": "赛博游民",
+  "action": "decline"
 }
 ```
 
@@ -117,7 +125,15 @@ Express interest in meeting someone. Requires mutual match to reveal contact.
 }
 ```
 
-**Errors:** 400 (self-interest), 404 (target not found), 409 (already expressed), 429 (max 5/day)
+**Response 200 (declined):**
+```json
+{
+  "status": "declined",
+  "message": "Declined interest from '赛博游民'."
+}
+```
+
+**Errors:** 400 (self-interest), 404 (target not found / no pending interest to decline), 409 (already expressed), 429 (max 5/day)
 
 ---
 

@@ -68,13 +68,29 @@ Determine what the user wants based on their input:
 
 On first use, silently ensure the user has a did:key identity. Do NOT explain cryptography to the user — just make it work.
 
+### Key file lookup (IMPORTANT)
+
+For all scripts below, resolve the private key file in this order:
+1. `DAZI_KEY_FILE` env var (absolute or relative path)
+2. `./.dazi/private-key.jwk` (only if the `./.dazi/` directory exists)
+3. `~/.dazi/private-key.jwk` (fallback)
+
 ### Step 1: Check for existing identity
 
 ```bash
 python3 -c "
 import json, os
 from pathlib import Path
-key_file = Path.home() / '.dazi' / 'private-key.jwk'
+def resolve_key_file():
+    env_path = os.environ.get('DAZI_KEY_FILE')
+    if env_path:
+        return Path(env_path).expanduser()
+    cwd_dir = Path.cwd() / '.dazi'
+    if cwd_dir.exists():
+        return cwd_dir / 'private-key.jwk'
+    return Path.home() / '.dazi' / 'private-key.jwk'
+
+key_file = resolve_key_file()
 if key_file.exists():
     print(json.dumps({'exists': True, 'path': str(key_file)}))
 else:
@@ -104,10 +120,18 @@ ensure_deps()
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat, PublicFormat
 
-DAZI_DIR = Path.home() / ".dazi"
-KEY_FILE = DAZI_DIR / "private-key.jwk"
+def resolve_key_file():
+    env_path = os.environ.get("DAZI_KEY_FILE")
+    if env_path:
+        return Path(env_path).expanduser()
+    cwd_dir = Path.cwd() / ".dazi"
+    if cwd_dir.exists():
+        return cwd_dir / "private-key.jwk"
+    return Path.home() / ".dazi" / "private-key.jwk"
 
-DAZI_DIR.mkdir(parents=True, exist_ok=True)
+KEY_FILE = resolve_key_file()
+
+KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 if KEY_FILE.exists():
     jwk = json.loads(KEY_FILE.read_text())
@@ -156,13 +180,23 @@ python3 << 'DAZI_SIGN_EOF'
 import base64, json, sys
 from pathlib import Path
 from datetime import datetime, timezone
+import os
 
 BODY = '__BODY_PLACEHOLDER__'  # Replace with actual JSON body string
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat, PublicFormat
 
-KEY_FILE = Path.home() / ".dazi" / "private-key.jwk"
+def resolve_key_file():
+    env_path = os.environ.get("DAZI_KEY_FILE")
+    if env_path:
+        return Path(env_path).expanduser()
+    cwd_dir = Path.cwd() / ".dazi"
+    if cwd_dir.exists():
+        return cwd_dir / "private-key.jwk"
+    return Path.home() / ".dazi" / "private-key.jwk"
+
+KEY_FILE = resolve_key_file()
 jwk = json.loads(KEY_FILE.read_text())
 d_bytes = base64.urlsafe_b64decode(jwk["d"] + "==")
 private_key = Ed25519PrivateKey.from_private_bytes(d_bytes)
@@ -334,20 +368,24 @@ Show the complete profile for confirmation. On confirm, call `POST /profile`:
 
 ### Step 2: Present results
 
-Show three sections:
+Show four sections:
 
 **有人想认识你 (Incoming)**
-For each: show nickname + tags. Ask user to accept/decline.
+For each: show nickname + tags. Ask user to accept or decline.
 
 **等待回复 (Outgoing)**
 For each: show nickname + tags + "waiting for response"
+
+**被拒绝 (Declined)**
+For each: show nickname + tags. These are your outgoing interests that were declined by the other person.
 
 **已匹配 (Matched)**
 For each: show nickname + tags + contact info + match time.
 
 ### Step 3: Handle accept/decline
 
-If user wants to accept an incoming interest, call `POST /interest` with that person's nickname. If mutual, contact is revealed.
+- **Accept**: call `POST /interest` with `{"target_nickname": "...", "action": "accept"}`. If mutual, contact is revealed.
+- **Decline**: call `POST /interest` with `{"target_nickname": "...", "action": "decline"}`. The other person will see the decline in their connections.
 
 ---
 
