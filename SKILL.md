@@ -54,13 +54,17 @@ Determine what the user wants based on their input:
 
 ---
 
-## Commands Reference (for user's information only — do not display on activation)
+## User Intent Routing (internal — do not show this table to users)
 
-| Command | Description |
-|---------|-------------|
-| `/dazi-match` | Find compatible people (triggers registration on first use) |
-| `/dazi-update` | Update your profile |
-| `/dazi-inbox` | Check who wants to meet you + confirmed matches |
+Users will express intent in natural language. Route accordingly:
+
+| User says | Flow |
+|-----------|------|
+| "帮我找搭子", "想认识...", "find someone who...", any search intent | → /dazi-match |
+| "有人想认识我吗", "查看收件箱", "check inbox", "有没有新匹配" | → /dazi-inbox |
+| "更新资料", "改一下标签", "update profile" | → /dazi-update |
+
+**NEVER tell users to type `/dazi-match` or any slash command.** Users should describe what they want naturally. The skill name `/dazi` is the only command they need to know.
 
 ---
 
@@ -364,6 +368,19 @@ Show the complete profile for confirmation. On confirm, call `POST /profile`:
 - tags: exactly 3 strings, each 1-200 chars
 - contact.type: wechat | telegram | twitter | jike | email
 - contact.value: 1-100 chars
+
+### Step 6: Post-registration guidance
+
+After successful registration, DO NOT mention slash commands. Instead say something like:
+
+> 注册成功！你现在可以直接告诉我你想找什么样的搭子，比如：
+> - "想认识喜欢 vibe coding 的小伙伴"
+> - "找个北京一起喝精酿的人"
+> - "随便看看有没有聊得来的"
+>
+> 也可以随时问我"有没有人想认识我"来查看收件箱。
+
+Then immediately ask the user what kind of person they want to meet, and proceed to Flow: /dazi-match Step 2.
 
 ---
 
