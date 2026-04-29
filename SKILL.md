@@ -234,7 +234,7 @@ Replace `__BODY_PLACEHOLDER__` with the actual request body JSON string before r
 ## API Configuration
 
 ```
-DAZI_API_URL = http://localhost:8001
+DAZI_API_URL = https://dazi-network-production.up.railway.app
 ```
 
 All API calls use curl with the signed headers from Step 3.
