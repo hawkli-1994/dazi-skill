@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check SKILL.md frontmatter
+        run: |
+          python3 -c "
+          import yaml
+          with open('SKILL.md', 'r') as f:
+            content = f.read()
+          # Extract frontmatter
+          if content.startswith('---'):
+            parts = content.split('---', 2)
+            if len(parts) >= 3:
+              frontmatter = yaml.safe_load(parts[1])
+              print('Frontmatter keys:', list(frontmatter.keys()))
+              assert 'name' in frontmatter, 'Missing required field: name'
+              assert 'description' in frontmatter, 'Missing required field: description'
+              print('✅ Frontmatter validation passed')
+            else:
+              raise ValueError('Invalid frontmatter format')
+          else:
+            raise ValueError('Missing frontmatter')
+          "
+
+      - name: Check required files exist
+        run: |
+          test -f SKILL.md || (echo "Missing SKILL.md" && exit 1)
+          test -f README.md || (echo "Missing README.md" && exit 1)
+          test -f LICENSE || (echo "Missing LICENSE" && exit 1)
+          echo "✅ Required files check passed"
+
+      - name: Check Markdown syntax
+        run: |
+          python3 -c "
+          with open('SKILL.md', 'r') as f:
+            content = f.read()
+          # Basic checks
+          assert content.count('```') % 2 == 0, 'Unclosed code blocks'
+          print('✅ Markdown syntax check passed')
+          "
